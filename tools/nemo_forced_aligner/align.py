@@ -126,6 +126,7 @@ class ASSFileConfig:
     # such that each segment will not take up more than (approximately) max_lines_per_segment
     # when the ASS file is applied to a video
     resegment_text_to_fill_space: bool = False
+    resegment_text_word_by_word: bool = False
     max_lines_per_segment: int = 2
     text_already_spoken_rgb: List[int] = field(default_factory=lambda: [49, 46, 61])  # dark gray
     text_being_spoken_rgb: List[int] = field(default_factory=lambda: [57, 171, 9])  # dark green
@@ -147,6 +148,7 @@ class AlignmentConfig:
     batch_size: int = 1
     use_local_attention: bool = True
     additional_segment_grouping_separator: Optional[List[str]] = field(default_factory=lambda: ['.', '?', '!', '...'])
+
     audio_filepath_parts_in_utt_id: int = 1
 
     # Buffered chunked streaming configs

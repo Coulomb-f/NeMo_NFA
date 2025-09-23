@@ -79,6 +79,9 @@ def make_ass_files(
     if ass_file_config.resegment_text_to_fill_space:
         utt_obj = resegment_utt_obj(utt_obj, ass_file_config)
 
+    elif ass_file_config.get("resegment_text_word_by_word", False): # Safely get the new config
+        utt_obj = resegment_utt_obj_word_by_word(utt_obj, ass_file_config)
+
     # get duration of the utterance, so we know the final timestamp of the final set of subtitles,
     # which we will keep showing until the end
     with sf.SoundFile(utt_obj.audio_filepath) as f:
@@ -89,6 +92,97 @@ def make_ass_files(
 
     return utt_obj
 
+def resegment_utt_obj_word_by_word(utt_obj, ass_file_config):
+    """
+    Resegments the utterance object to have one word per segment for 
+    word-by-word subtitle display.
+    """
+    all_words_and_tokens = []
+    for segment_or_token in utt_obj.segments_and_tokens:
+        if type(segment_or_token) is Segment:
+            all_words_and_tokens.extend(segment_or_token.words_and_tokens)
+        else:
+            all_words_and_tokens.append(segment_or_token)
+
+    new_segments_and_tokens = []
+    all_words_and_tokens_pointer = 0
+
+    # Handle any leading tokens before the first word
+    while all_words_and_tokens_pointer < len(all_words_and_tokens):
+        if type(all_words_and_tokens[all_words_and_tokens_pointer]) is Token:
+            new_segments_and_tokens.append(all_words_and_tokens[all_words_and_tokens_pointer])
+            all_words_and_tokens_pointer += 1
+        else:
+            break
+    
+    # Process each word and its surrounding tokens
+    while all_words_and_tokens_pointer < len(all_words_and_tokens):
+        word_or_token = all_words_and_tokens[all_words_and_tokens_pointer]
+        
+        if type(word_or_token) is Word:
+            # Create a new segment for each word
+            new_segment = Segment()
+            new_segment.words_and_tokens.append(word_or_token)
+            new_segments_and_tokens.append(new_segment)
+
+        else: # i.e. word_or_token is a token
+            # If the last element is a segment, add the token to it.
+            # Otherwise, it's a standalone token.
+            if new_segments_and_tokens and type(new_segments_and_tokens[-1]) is Segment:
+                new_segments_and_tokens[-1].words_and_tokens.append(word_or_token)
+            else:
+                new_segments_and_tokens.append(word_or_token)
+
+        all_words_and_tokens_pointer += 1
+    
+    utt_obj.segments_and_tokens = new_segments_and_tokens
+    return utt_obj
+
+def resegment_utt_obj_word_by_word(utt_obj, ass_file_config):
+    """
+    Resegments the utterance object to have one word per segment for 
+    word-by-word subtitle display.
+    """
+    all_words_and_tokens = []
+    for segment_or_token in utt_obj.segments_and_tokens:
+        if type(segment_or_token) is Segment:
+            all_words_and_tokens.extend(segment_or_token.words_and_tokens)
+        else:
+            all_words_and_tokens.append(segment_or_token)
+
+    new_segments_and_tokens = []
+    all_words_and_tokens_pointer = 0
+
+    # Handle any leading tokens before the first word
+    while all_words_and_tokens_pointer < len(all_words_and_tokens):
+        if type(all_words_and_tokens[all_words_and_tokens_pointer]) is Token:
+            new_segments_and_tokens.append(all_words_and_tokens[all_words_and_tokens_pointer])
+            all_words_and_tokens_pointer += 1
+        else:
+            break
+    
+    # Process each word and its surrounding tokens
+    while all_words_and_tokens_pointer < len(all_words_and_tokens):
+        word_or_token = all_words_and_tokens[all_words_and_tokens_pointer]
+        
+        if type(word_or_token) is Word:
+            # Create a new segment for each word
+            new_segment = Segment()
+            new_segment.words_and_tokens.append(word_or_token)
+            new_segments_and_tokens.append(new_segment)
+
+        else: # i.e. word_or_token is a token
+            # If the last element is a segment, add the token to it.
+            # Otherwise, it's a standalone token.
+            if new_segments_and_tokens and type(new_segments_and_tokens[-1]) is Segment:
+                new_segments_and_tokens[-1].words_and_tokens.append(word_or_token)
+            else:
+                new_segments_and_tokens.append(word_or_token)
+
+        all_words_and_tokens_pointer += 1
+    
+    utt_obj.segments_and_tokens = new_segments_and_tokens
+    return utt_obj
 
 def _get_word_n_chars(word):
     n_chars = 0
