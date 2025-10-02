@@ -1,0 +1,25 @@
+{
+	"name": "NeMo v2.5.0rc0 Environment",
+	"build": {
+		"dockerfile": "../Dockerfile"
+	},
+	"workspaceFolder": "/workspace",
+	"runArgs": [
+		"--gpus", "all",
+		"--shm-size=16g",
+		"--ulimit", "memlock=-1",
+		"--ulimit", "stack=67108864"
+	],
+	"mounts": [
+		"source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-toolsai.jupyter"
+			]
+		}
+	},
+	"postCreateCommand": "git config --global --safe-directory /workspace"
+}
