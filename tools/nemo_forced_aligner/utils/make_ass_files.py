@@ -62,7 +62,7 @@ def seconds_to_ass_format(seconds_float):
 
 def rgb_list_to_hex_bgr(rgb_list):
     r, g, b = rgb_list
-    return f"{b:x}{g:x}{r:x}"
+    return f"{b:02x}{g:02x}{r:02x}" # Corrected padding
 
 
 def make_ass_files(
